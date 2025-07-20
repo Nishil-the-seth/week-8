@@ -1,127 +1,340 @@
-# Number Theory – Week 8 DSA Bootcamp
+# **Number Theory**
 
-This week covers essential number theory techniques used in competitive programming. We'll focus on two foundational algorithms and briefly touch on supporting concepts, based on the Competitive Programmer’s Handbook.
 
-## Core Algorithms
+### **1. Sieve of Eratosthenes**
 
-### 1. Sieve of Eratosthenes with Smallest Prime Factor (SPF)
+The **Sieve of Eratosthenes** is a preprocessing algorithm that builds an array which allows us to efficiently determine whether a given number between 2 and *n* is prime. If the number is not prime, we can also find one of its prime factors using this array.
 
-The Sieve of Eratosthenes is a preprocessing algorithm used to efficiently determine prime numbers up to a given number `n`. A modified version of the sieve also stores the smallest prime factor (SPF) for each number, which allows quick prime factorization.
+The algorithm constructs an array `sieve` where the indices 2, 3, ..., *n* are used. The value `sieve[k] = 0` means that *k* is prime. If `sieve[k] ≠ 0`, it means that *k* is not a prime number, and one of its prime factors is `sieve[k]`.
 
-#### Purpose
-- Check if a number is prime in constant time after preprocessing.
-- Factorize numbers ≤ `n` in logarithmic time using stored smallest prime factors.
+The algorithm iterates over the numbers from 2 to *n* one at a time. Whenever a new prime *x* is encountered, it marks all multiples of *x* (i.e., 2x, 3x, 4x, ...) as non-prime by setting their sieve values to *x*. This is because *x* divides those numbers.
 
-#### Time Complexity
-- Preprocessing: O(n log log n)
-- Prime check: O(1)
-- Factorization: O(log n)
+For example, if *n* = 20, the array is built as follows:
 
-#### Code (C++)
-```cpp
-const int N = 1e6 + 5;
-int sieve[N];
+|  2 |  3 |  4 |  5 |  6 |  7 |  8 |  9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |
+|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+|  0 |  0 |  2 |  0 |  3 |  0 |  2 |  3 |  5 |  0 |  3 |  0 |  7 |  5 |  2 |  0 |  3 |  0 |  5 |
 
-void build_sieve(int n) {
-    for (int x = 2; x <= n; x++) {
-        if (sieve[x] != 0) continue;
-        for (int u = 2 * x; u <= n; u += x) {
-            if (sieve[u] == 0)
-                sieve[u] = x;
+
+### **Time Complexity Analysis:**
+
+The inner loop of the algorithm is executed `n/x` times for each value of `x`. Therefore, the total running time is upper-bounded by the harmonic sum:
+
+∑ (n / x) from x = 2 to n
+
+= n/2 + n/3 + n/4 + ... + n/n
+
+= O(n log log n)
+
+The inner loop of the algorithm is executed n/x times for each value of x. Thus, an upper bound for the running time of the algorithm is the harmonic sum Xn x=2 n/x = n/2+ n/3+ n/4+··· + n/n = O(nlogn). In fact, the algorithm is more efficient, because the inner loop will be executed only if the number x is prime. It can be shown that the running time of the algorithm is only O(nlog logn), a complexity very near to O(n).
+
+The following code implements the sieve of Eratosthenes. The code assumes that each element of sieve is initially zero
+
+
+#### **C++ code:**
+
+
+```
+vector<bool> sieve(int n) {
+    vector<bool> isPrime(n + 1, true);
+    isPrime[0] = isPrime[1] = false;
+    for (int i = 2; i * i <= n; ++i) {
+        if (isPrime[i]) {
+            for (int j = i * i; j <= n; j += i)
+                isPrime[j] = false;
         }
     }
+    return isPrime;
 }
-Example (n = 20)
-less
-Copy
-Edit
-Index (k):      2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
-sieve[k]:       0  0  2  0  2  0  2  3  2  0  2  0  2  3  2  0  2  0  2
-Here, sieve[k] == 0 indicates that k is prime. Otherwise, sieve[k] gives the smallest prime factor of k.
+```
 
-2. Modular Exponentiation (Binary Exponentiation)
-Modular exponentiation is used to compute large powers modulo a number, typically to avoid overflow and maintain performance. It is especially useful in modular inverse calculations.
 
-Purpose
-Efficiently compute (a^b) % m for large b.
 
-Time Complexity
-O(log b)
+#### **Python Code:**
 
-Code (C++)
-cpp
-Copy
-Edit
-long long modpow(long long a, long long b, long long m) {
-    long long res = 1;
-    a %= m;
-    while (b > 0) {
-        if (b & 1)
-            res = (res * a) % m;
-        a = (a * a) % m;
-        b >>= 1;
+
+```
+def sieve(n):
+    is_prime = [True] * (n + 1)
+    is_prime[0] = is_prime[1] = False
+    for i in range(2, int(n**0.5) + 1):
+        if is_prime[i]:
+            for j in range(i*i, n+1, i):
+                is_prime[j] = False
+    return is_prime
+```
+
+
+
+#### **JavaScript Code:**
+
+
+```
+function sieve(n) {
+    const isPrime = Array(n + 1).fill(true);
+    isPrime[0] = isPrime[1] = false;
+    for (let i = 2; i * i <= n; i++) {
+        if (isPrime[i]) {
+            for (let j = i * i; j <= n; j += i) {
+                isPrime[j] = false;
+            }
+        }
     }
-    return res;
+    return isPrime;
 }
-Example
-cpp
-Copy
-Edit
-modpow(2, 10, 1000) // returns 24
-Supporting Concepts
-These concepts are often used alongside the above algorithms in competitive programming problems.
+```
 
-Modular Arithmetic Rules
-(a + b) % m = ((a % m) + (b % m)) % m
 
-(a * b) % m = ((a % m) * (b % m)) % m
 
-(a - b + m) % m ensures non-negative results
+### **2. Euclidean Algorithm (GCD)**
 
-Prime Factorization using SPF Array
-Once the smallest prime factors are stored with the sieve, we can factorize any number using:
+The **greatest common divisor** of numbers *a* and *b*, **gcd(a, b)**, is the greatest number that divides both *a* and *b*, and the **least common multiple** of *a* and *b*, **lcm(a, b)**, is the smallest number that is divisible by both *a* and *b*. For example, gcd(24, 36) = 12 and lcm(24, 36) = 72.
 
-cpp
-Copy
-Edit
-vector<int> factorize(int x) {
-    vector<int> res;
-    while (sieve[x]) {
-        res.push_back(sieve[x]);
-        x /= sieve[x];
-    }
-    if (x > 1) res.push_back(x);
-    return res;
-}
-Modular Inverse
-When m is prime, the modular inverse of a can be calculated using Fermat's Little Theorem:
+The greatest common divisor and the least common multiple are connected as follows:
 
-css
-Copy
-Edit
-a^(-1) ≡ a^(m-2) mod m
-This is frequently used in modular division.
+lcm(a, b) = (a × b) / gcd(a, b)
 
-GCD and the Euclidean Algorithm
-Used for simplifying ratios, checking coprimality, or solving Diophantine equations.
+**Euclid’s algorithm**¹ provides an efficient way to find the greatest common divisor of two numbers. The algorithm is based on the following formula:
 
-cpp
-Copy
-Edit
+gcd(a, b) =
+    a                  if b = 0
+    gcd(b, a mod b)    if b ≠ 0
+
+
+For example, \
+ gcd(24, 36) = gcd(36, 24) = gcd(24, 12) = gcd(12, 0) = 12.
+
+The algorithm can be implemented as follows:
+
+**C++:**
+
+
+```
 int gcd(int a, int b) {
     return b == 0 ? a : gcd(b, a % b);
 }
-Summary
-For this week, focus on mastering the following two algorithms:
+```
 
-Sieve of Eratosthenes with SPF – for efficient prime generation and fast factorization.
 
-Modular Exponentiation – for computing large powers under modulo efficiently.
+**Python:**
 
-These two techniques form the foundation of number theory problems in competitive programming. A clear understanding of modular arithmetic, GCD, and modular inverses will significantly improve your ability to solve a wide range of problems.
 
-yaml
-Copy
-Edit
+```
+def gcd(a, b):
+    return a if b == 0 else gcd(b, a % b)
+```
+
+
+**JavaScript:**
+
+
+```
+function gcd(a, b) {
+    return b === 0 ? a : gcd(b, a % b);
+}
+```
+
+
+It can be shown that Euclid’s algorithm works in O(log n) time, where n = min(a, b). The worst case for the algorithm is the case when *a* and *b* are consecutive Fibonacci numbers. For example,
+
+gcd(13, 8) = gcd(8, 5) = gcd(5, 3) = gcd(3, 2) = gcd(2, 1) = gcd(1, 0) = 1.
+
+
+---
+
+
+## **Modular exponentiation**
+
+There is often need to efficiently calculate the value of `xⁿ mod m`. This can be done in **O(log n)** time using the following recursive routine:
+
+xⁿ mod m =
+
+    (x²)ⁿ/² mod m     if n is even
+
+    x ⋅ xⁿ⁻¹ mod m    if n is odd
+
+It is important that in the case of an even `n`, the value of `x²` is calculated only once. This guarantees that the time complexity of the algorithm is O(log n), because it always halves what is in the exponent.
+
+The following function calculates the value of `xⁿ mod m`:
+
+**C++:**
+
+
+```
+int modExpo(int a, int b, int mod) {
+    int result = 1;
+    a %= mod;
+    while (b > 0) {
+        if (b % 2 == 1) result = (1LL * result * a) % mod;
+        a = (1LL * a * a) % mod;
+        b /= 2;
+    }
+    return result;
+}
+```
+
+
+**Python:**
+
+
+```
+def mod_exp(a, b, mod):
+    result = 1
+    a %= mod
+    while b:
+        if b % 2:
+            result = (result * a) % mod
+        a = (a * a) % mod
+        b //= 2
+    return result
+```
+
+
+**JavaScript:**
+
+
+```
+function modExp(a, b, mod) {
+    let result = 1;
+    a %= mod;
+    while (b > 0) {
+        if (b % 2 === 1) result = (result * a) % mod;
+        a = (a * a) % mod;
+        b = Math.floor(b / 2);
+    }
+    return result;
+}
+```
+
+
+
+---
+
+
+### **4. Modular Inverse**
+
+The inverse of a modulo `m` is a number `x⁻¹` such that:
+
+
+```
+x ⋅ x⁻¹ mod m = 1
+```
+
+
+For example, if `x = 6` and `m = 17`, then `x⁻¹ = 3`, because `6 ⋅ 3 mod 17 = 1`.
+
+Using modular inverse, we can divide numbers modulo `m`, because division by `x` corresponds to multiplication by `x⁻¹`. For example, to evaluate the value of `6^360 mod 17`
+
+we can use the formula `2 ⋅ 3 mod 17`, because `36 mod 17 = 2` and `2 ⋅ 3 = 6`.
+
+However, a modular inverse does not always exist. For example, if `x = 2` and `m = 4`, the equation:
+
+
+```
+2x mod 4 = 1
+```
+
+
+cannot be solved, because all multiples of 2 are even and the remainder can never be 1 when `m = 4`. It turns out that the value of `x⁻¹ mod m` can be calculated when `x` and `m` are coprime.
+
+A modular inverse can be calculated using the formula:
+
+
+```
+x⁻¹ = x^(φ(m) − 1) mod m
+```
+
+
+If `m` is prime, the formula becomes:
+
+
+```
+x⁻¹ = x^(p − 2) mod p
+```
+
+
+For example:
+
+
+```
+6⁻¹ mod 17 = 6^15 mod 17 = 3
+```
+
+
+This formula allows us to efficiently calculate modular inverses using the same modular exponentiation routine. This formula can be derived using Euler’s theorem. First, the modular inverse should satisfy the following equation:
+
+
+```
+x ⋅ x⁻¹ mod m = 1
+```
+
+
+On the other hand, according to Euler’s theorem:
+
+
+```
+x^φ(m) mod m = 1
+```
+
+
+So the numbers `x⁻¹` and `x^(φ(m)−1)` are equal.
+
+**C++:**
+
+
+```
+int modInverse(int a, int m) {
+    return modExpo(a, m - 2, m); // Using Fermat's little theorem
+}
+```
+
+
+**Python:**
+
+
+```
+def mod_inverse(a, m):
+    return mod_exp(a, m - 2, m)
+```
+
+
+**JavaScript:**
+
+
+```
+function modInverse(a, m) {
+    return modExp(a, m - 2, m);
+}
+```
+
+
+
+---
+# Questions to practice:  
+
+##  Easy
+
+1. [Find Greatest Common Divisor of Array – LeetCode](https://leetcode.com/problems/find-greatest-common-divisor-of-array/)
+2. [LCM And GCD – GeeksforGeeks](https://www.geeksforgeeks.org/problems/lcm-and-gcd/1)
+3. [Check if a Number is Prime – GeeksforGeeks](https://www.geeksforgeeks.org/problems/check-for-prime/1)
+4. [Count Numbers Having Exactly 3 Divisors – LeetCode](https://leetcode.com/problems/three-divisors/)
+5. [Print All Divisors of a Number – GeeksforGeeks](https://www.geeksforgeeks.org/problems/all-divisors-of-a-number/1)
+
+---
+
+##  Medium
+
+1. [Sieve of Eratosthenes – GeeksforGeeks](https://www.geeksforgeeks.org/problems/sieve-of-eratosthenes5242/1)
+2. [Sum of All Primes in a Range – GeeksforGeeks](https://www.geeksforgeeks.org/sum-of-all-primes-in-a-given-range-using-sieve-of-eratosthenes/)
+3. [Modular Exponentiation – LeetCode](https://leetcode.com/problems/powx-n/)
+4. [Modular Multiplicative Inverse – GeeksforGeeks](https://www.geeksforgeeks.org/multiplicative-inverse-under-modulo-m/)
+
+---
+
+##  Hard
+
+1. [913A – Remainder by Division by Powers of Two – Codeforces](https://codeforces.com/problemset/problem/913/A)
+2. [1285C – Fadi and LCM – Codeforces](https://codeforces.com/problemset/problem/1285/C)
+3. [Totient Function – GeeksforGeeks](https://www.geeksforgeeks.org/problems/totient-function/1)
 
 ---
