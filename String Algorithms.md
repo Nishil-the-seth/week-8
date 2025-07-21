@@ -302,8 +302,23 @@ class Trie {
     }
 }
 
-
-
-
-
 ```
+# Practice Problems
+
+## Easy
+1. [strStr (First Occurrence)](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+2. [String Matching in an Array](https://leetcode.com/problems/string-matching-in-an-array/)
+3. [Naive Pattern Searching (GfG)](https://www.geeksforgeeks.org/naive-algorithm-for-pattern-searching/)
+4. [Repeated Substring Pattern](https://leetcode.com/problems/repeated-substring-pattern/)
+5. [Remove All Occurrences of a Substring](https://leetcode.com/problems/remove-all-occurrences-of-a-substring/)
+
+## Medium
+1. [Search Pattern (KMP) – GfG](https://www.geeksforgeeks.org/problems/search-pattern0205/1)
+2. [Z‑Algorithm Pattern Search – GfG](https://www.geeksforgeeks.org/dsa/z-algorithm-linear-time-pattern-searching-algorithm/)
+3. [Longest Happy Prefix](https://leetcode.com/problems/longest-happy-prefix/)
+4. [Implement Trie (Prefix Tree)](https://leetcode.com/problem-list/trie/)
+
+## Hard
+1. [Shortest Palindrome](https://leetcode.com/problems/shortest-palindrome/)
+2. [Stamping the Sequence](https://leetcode.com/problems/stamping-the-sequence/)
+3. [Repeated String Match](https://leetcode.com/problems/repeated-string-match/)
