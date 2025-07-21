@@ -29,7 +29,240 @@ These can be done using built-in functions in C++, Python, or JavaScript.
 
 ---
 
+# **KMP Algorithm (Knuth–Morris–Pratt)**
 
+The KMP algorithm efficiently finds all occurrences of a pattern in a string in **O(n + m)** time, where `n` is the length of the text and `m` is the length of the pattern. It avoids unnecessary rechecking of characters after a mismatch by using preprocessed information from the pattern.
+
+What we want to do here is that given a text string `T` of length `n` and a pattern string `P` of length `m`, we have to find all positions where `P` occurs as a substring in `T`.
+
+The idea is that naive pattern matching algorithm may take `O(nm)` time in the worst case. The KMP algorithm improves this by preprocessing the pattern to create an array called the **longest prefix which is also suffix** (LPS) array, which helps skip characters without checking them again.
+
+
+---
+
+
+### **The LPS Array**
+
+The **LPS array** is the foundation of the **KMP algorithm**. It helps us determine how much of the pattern we can reuse when a mismatch happens.
+
+
+---
+
+
+### 
+    **💡 Definition**
+
+For a given index `i`, `lps[i]` is defined as the **length of the longest proper prefix** of the substring `pattern[0..i]` that is also a **suffix** of this substring.
+
+
+
+* A **proper prefix** is a prefix that is **not equal to the entire string**. \
+
+* A **suffix** is a substring that occurs at the end.
+
+So, for `pattern = "ABABAC"`:
+
+| Index `i` | Substring  | Proper Prefixes         | Proper Suffixes         | LPS Value |
+|-----------|------------|--------------------------|--------------------------|-----------|
+| 0         | A          | —                        | —                        | 0         |
+| 1         | AB         | A                        | B                        | 0         |
+| 2         | ABA        | A, AB                    | A, BA                    | 1         |
+| 3         | ABAB       | A, AB, ABA               | B, AB, BAB               | 2         |
+| 4         | ABABA      | A, AB, ABA, ABAB         | A, BA, ABA, BABA         | 3         |
+| 5         | ABABAC     | A, AB, ABA, ABAB, ABABA  | C, AC, BAC, ABAC, BABAC  | 0         |
+
+**Final LPS Array**: `[0, 0, 1, 2, 3, 0]`
+
+
+Final LPS: `[0, 0, 1, 2, 3, 0]`
+
+
+### How to Compute the LPS Array:
+
+
+### **C++:**
+
+Start with:
+
+- lps[0] = 0
+
+- len = 0 (length of current longest prefix-suffix)
+
+- i = 1 (we start checking from second character)
+
+Loop while i &lt; pattern.length:
+
+    If pattern[i] == pattern[len]:
+
+        len += 1
+
+        lps[i] = len
+
+        i += 1
+
+    Else if len != 0:
+
+        len = lps[len - 1]   // Backtrack to previous best match
+
+    Else:
+
+        lps[i] = 0
+
+        i += 1
+
+This avoids unnecessary comparisons and computes LPS in `O(m)` time. \
+
+
+
+---
+
+
+### **Algorithm Steps**
+
+
+
+1. **Build the LPS array** for the pattern in `O(m)` time. \
+
+2. Use two pointers, `i` for text and `j` for pattern. \
+
+3. If characters match, increment both `i` and `j`. \
+
+4. If `j` reaches the end of the pattern, we have a match. Store `i - j` and update `j = lps[j - 1]`. \
+
+5. If a mismatch occurs: \
+
+    * If `j > 0`, set `j = lps[j - 1] \
+`
+    * Otherwise, increment `i` only. \
+
+
+
+---
+
+
+### Implementation:
+
+Cpp:
+
+
+```
+vector<int> computeLPS(string pattern) {
+    int m = pattern.size();
+    vector<int> lps(m, 0);
+    int len = 0;
+    for (int i = 1; i < m;) {
+        if (pattern[i] == pattern[len]) {
+            lps[i++] = ++len;
+        } else if (len != 0) {
+            len = lps[len - 1];
+        } else {
+            lps[i++] = 0;
+        }
+    }
+    return lps;
+}
+
+vector<int> kmpSearch(string text, string pattern) {
+    vector<int> lps = computeLPS(pattern);
+    vector<int> result;
+    int i = 0, j = 0;
+    while (i < text.size()) {
+        if (text[i] == pattern[j]) {
+            i++; j++;
+        }
+        if (j == pattern.size()) {
+            result.push_back(i - j);
+            j = lps[j - 1];
+        } else if (i < text.size() && text[i] != pattern[j]) {
+            j = (j != 0) ? lps[j - 1] : 0;
+            if (j == 0) i++;
+        }
+    }
+    return result;
+}
+```
+
+
+Python:
+
+
+```
+def compute_lps(pattern):
+    lps = [0] * len(pattern)
+    length = 0
+    i = 1
+    while i < len(pattern):
+        if pattern[i] == pattern[length]:
+            length += 1
+            lps[i] = length
+            i += 1
+        elif length != 0:
+            length = lps[length - 1]
+        else:
+            lps[i] = 0
+            i += 1
+    return lps
+
+def kmp_search(text, pattern):
+    lps = compute_lps(pattern)
+    i = j = 0
+    result = []
+    while i < len(text):
+        if text[i] == pattern[j]:
+```
+
+
+JavaScript:
+
+
+```
+function computeLPS(pattern) {
+    const lps = Array(pattern.length).fill(0);
+    let len = 0, i = 1;
+    while (i < pattern.length) {
+        if (pattern[i] === pattern[len]) {
+            len++;
+            lps[i++] = len;
+        } else if (len !== 0) {
+            len = lps[len - 1];
+        } else {
+            lps[i++] = 0;
+        }
+    }
+    return lps;
+}
+
+function kmpSearch(text, pattern) {
+    const lps = computeLPS(pattern);
+    const result = [];
+    let i = 0, j = 0;
+
+    while (i < text.length) {
+        if (text[i] === pattern[j]) {
+            i++; j++;
+        }
+        if (j === pattern.length) {
+            result.push(i - j);
+            j = lps[j - 1];
+        } else if (i < text.length && text[i] !== pattern[j]) {
+            j = j !== 0 ? lps[j - 1] : 0;
+            if (j === 0) i++;
+        }
+    }
+    return
+```
+
+
+
+### **Time Complexity**
+
+
+
+* LPS Array Construction: `O(m) \
+`
+* Pattern Search: `O(n) \
+`
+* Total: `O(n + m)`
 ## **5. Z Algorithm**
 
 The Z-array z of a string s of length n contains for each k = 0,1,...,n − 1 the length of the longest substring of s that begins at position k and is a prefix of 247 s. Thus, z[k] = p tells us that s[0... p − 1] equals s[k...k + p − 1]. Many string processing problems can be efficiently solved using the Z-array. For example, the Z-array of ACBACDACBACBACDA is as follows:
